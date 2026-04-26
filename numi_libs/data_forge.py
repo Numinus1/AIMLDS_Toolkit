@@ -123,6 +123,28 @@ def simpleImputation(data):
     return data
 
 
+def randomUnderSampleClass(datas, yColumn, targetClass, factor = 2):
+
+    count = 0
+    
+    for cl in np.unique(datas[yColumn]):
+
+        if cl != targetClass:
+            count += datas[datas[yColumn] == cl].shape[0]
+
+
+    targetDf = datas[datas[yColumn] == targetClass]
+    targetDf = targetDf.sample(n = int(count * factor), replace = False,
+                               random_state = seed, axis = 0,
+                               ignore_index = True)
+
+    collateralDf = datas[datas[yColumn] != targetClass]
+
+    df = pd.concat([collateralDf, targetDf], axis = 0, ignore_index = True)
+
+    return df
+
+
 def randomOverSample(x_data, y_data, sampling_strat = "auto"):
     
     le = LabelEncoder()
@@ -141,7 +163,11 @@ def randomOverSample(x_data, y_data, sampling_strat = "auto"):
     x_sm, y_sm = sampler.fit_resample(x_data, y_data)
     y_sm = le.inverse_transform(y_sm)
 
+    x_sm = pd.DataFrame(x_sm, columns=x_data.columns)
+    y_sm = pd.Series(y_sm)
+
     return x_sm, y_sm
+
 
 def smoteSample(x_data, y_data, sampling_strat = "auto"):
     
@@ -161,7 +187,11 @@ def smoteSample(x_data, y_data, sampling_strat = "auto"):
     x_sm, y_sm = sampler.fit_resample(x_data, y_data)
     y_sm = le.inverse_transform(y_sm)
 
+    x_sm = pd.DataFrame(x_sm, columns=x_data.columns)
+    y_sm = pd.Series(y_sm)
+
     return x_sm, y_sm
+    
 
 def smoteennSample(x_data, y_data, sampling_strat = "auto"):
     
@@ -180,6 +210,9 @@ def smoteennSample(x_data, y_data, sampling_strat = "auto"):
 
     x_sm, y_sm = sampler.fit_resample(x_data, y_data)
     y_sm = le.inverse_transform(y_sm)
+
+    x_sm = pd.DataFrame(x_sm, columns=x_data.columns)
+    y_sm = pd.Series(y_sm)
 
     return x_sm, y_sm
 

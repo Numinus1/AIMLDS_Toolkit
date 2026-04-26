@@ -134,11 +134,18 @@ def applyAndReportRegressors(x_tr, x_te, y_tr, y_te, algorithms, pca = [], visua
     table_tr = table_tr.style.set_caption(f"{title} - Training Data")
     display(table_tr)
 
-def applyAndReportClassifiers(x_tr, x_te, y_tr, y_te, algorithms, pca = [], title = ""):
+def applyAndReportClassifiers(x_tr, x_te, y_tr, y_te, algorithms, pca = [], title = "", path_to_persist_predictions = None):
 
     metric_tables = []
     metric_tables_per_class = []
     metric_tables_avg = []
+
+    #org_tr = x_tr[['file', 'cell_n']]
+    #org_te = x_te[['file', 'cell_n']]
+    #display(org_te)
+
+    #x_tr = x_tr.drop(columns = ['file', 'cell_n'])
+    #x_te = x_te.drop(columns = ['file', 'cell_n'])
     
     le = LabelEncoder()
     y_combined = pd.concat([y_tr, y_te])
@@ -164,6 +171,16 @@ def applyAndReportClassifiers(x_tr, x_te, y_tr, y_te, algorithms, pca = [], titl
     
             y_tr_pr = algo.predict(x_tr)
             y_te_pr = algo.predict(x_te)
+
+            if path_to_persist_predictions != None:
+
+                y_te_pr_ex = le.inverse_transform(y_te_pr)
+
+                pred_data = org_te.copy()
+                pred_data["classification"] = le.inverse_transform(y_te)
+                pred_data["prediction"] = y_te_pr_ex
+
+                pred_data.to_csv(path_to_persist_predictions, index = False)
 
             # Accuracy = (Correct Predictions)/(Total Predictions)
             # - Misleading if Data Imbalanced - can be high accuracy for majority but not minorty
